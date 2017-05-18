@@ -16,7 +16,7 @@ import requests
 import Queue
 
 class BaiduIndex(object):
-	
+
 	def __init__(self):
 		self.numdict = self.get_numberdict()
 		keys = list()
@@ -26,7 +26,7 @@ class BaiduIndex(object):
 			vals.append(v)
 		self.keys = keys
 		self.vals = vals
-		
+
 		tof = self.judgment()
 		if tof == False:
 			self.change_cookies()
@@ -48,7 +48,7 @@ class BaiduIndex(object):
 					self.driver.add_cookie({k: cookie[k] for k in ('name', 'value', 'domain', 'path', 'expiry')})
 			else:
 				self.driver.add_cookie({k: cookie[k] for k in ('name', 'value', 'domain', 'path')})
-	
+
 	def judgment(self):
 		cookies = pickle.load(open("cookies/cookies.pkl", "rb"))
 		s = requests.Session()
@@ -62,7 +62,7 @@ class BaiduIndex(object):
 			return True
 		else:
 			return False
-			
+
 	def change_cookies(self):
 		#~ dcap = dict(DesiredCapabilities.PHANTOMJS)
 		#~ dcap["phantomjs.page.settings.userAgent"] = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
@@ -71,15 +71,15 @@ class BaiduIndex(object):
 		#~ driver = webdriver.PhantomJS(executable_path='/usr/bin/phantomjs')
 		driver.get('http://index.baidu.com/?tpl=trend&word=%B9%C7%C3%DC%B6%C8%D2%C7')
 		e1 = driver.find_element_by_id("TANGRAM_12__userName")
-		e1.send_keys("plus0318")
+		e1.send_keys("这里填写你的账号")
 		e2 = driver.find_element_by_id("TANGRAM_12__password")
-		e2.send_keys("PLus820828")
+		e2.send_keys("这里填写你的密码")
 		e3 = driver.find_element_by_id("TANGRAM_12__submit")
 		e3.click()
-		cookies = driver.get_cookies()  
+		cookies = driver.get_cookies()
 		driver.quit()
 		pickle.dump(cookies, open("cookies/cookies.pkl","wb"))
-	
+
 	# 拿到数字和文本组合的向量字典
 	def get_numberdict(self):
 		numdict = dict()
@@ -110,7 +110,7 @@ class BaiduIndex(object):
 		e2 = self.driver.find_elements_by_css_selector("span[class='ftlwhf enc2imgVal']")
 		lc1 = e2[0].location
 		lc2 = e2[1].location
-		
+
 		filename = unquote(url.split('&word=')[1])
 		self.driver.get_screenshot_as_file("screenshot/%s.png" % filename.decode('gbk'))
 		im = Image.open("screenshot/%s.png" % filename.decode('gbk'))
@@ -147,12 +147,12 @@ class BaiduIndex(object):
 			return self.keys[i]
 		else:
 			return None
-			
+
 	# 将图片对象转换成字符串
 	def image2text(self, im):
 		width = im.size[0]
 		height = im.size[1]
-		
+
 		tmstr = ""
 		for i in range(0,width):
 			for j in range(0,height):
@@ -165,15 +165,15 @@ class BaiduIndex(object):
 					tmstr = tmstr + "0"
 			tmstr = tmstr + "\n"
 		return tmstr
-		
+
 	def do_main(self):
-		
+
 		while not q.empty():
 			try:
 				tw = q.get()
 				word = quote(tw)
 				url = 'http://index.baidu.com/?tpl=trend&word=%s' % word
-				
+
 				pcindex, mobileindex = self.get_index(url)
 				word = unquote(url.split('&word=')[-1])
 				if pcindex != None and mobileindex != None:
@@ -194,7 +194,7 @@ class BaiduIndex(object):
 					txt.write(word + ':' + str(nus1[::-1]) + ' ' + nus2[::-1] + '\n')
 					txt.close()
 					print tw.decode('gbk'), nus1[::-1], nus2[::-1]
-					
+
 				else:
 					print tw.decode('gbk'), u"没有指数"
 					txt = open(u'百度指数.txt', 'a')
@@ -206,8 +206,8 @@ class BaiduIndex(object):
 			except Exception as e:
 				raise e
 				continue
-				
-				
+
+
 contents = open('words').read().split('\n')
 if os.path.exists('log'):
 	contentb = open('log').read().split(',')
@@ -225,7 +225,7 @@ threads = list()
 for i in xrange(5):
 	a = BaiduIndex()
 	t = Thread(target=a.do_main)
-	threads.append(t)  
+	threads.append(t)
 
 # 启动所有线程
 for thr in threads:
